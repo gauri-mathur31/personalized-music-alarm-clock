@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morning Melody - Music Alarm Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcf8f2;
+            --card-bg: #fffdf9;
+            --primary-blue: #2c4a6f;
+            --accent-yellow: #f4d06f;
+            --accent-red: #d96b54;
+            --text-dark: #3a3532;
+            --border-radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 260px;
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top-right-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .logo-area h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 40px;
+            color: var(--accent-yellow);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-links li {
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links li.active, .nav-links li:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--accent-yellow);
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        header p {
+            color: #7a7067;
+            font-size: 0.95rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid #f0e6dc;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 8px 24px rgba(44, 74, 111, 0.04);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+
+        /* Alarm List Items */
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #faf5ed;
+            padding: 15px 20px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #f4eae0;
+        }
+
+        .alarm-time {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .alarm-label {
+            font-size: 0.85rem;
+            color: #7a7067;
+        }
+
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-blue);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #1f354f;
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-yellow);
+            color: var(--text-dark);
+        }
+
+        .btn-accent:hover {
+            background-color: #ebd160;
+        }
+
+        /* Motivational Alarm Modal Overlay */
+        #alarm-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 74, 111, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 480px;
+            width: 90%;
+            border: 4px solid var(--accent-yellow);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .quote-box {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside>
+        <div class="logo-area">
+            <h2>✨ Morning Melody</h2>
+            <ul class="nav-links">
+                <li class="active">Dashboard</li>
+                <li>My Playlists</li>
+                <li>Motivational Vault</li>
+                <li>Settings</li>
+            </ul>
+        </div>
+        <div style="font-size: 0.85rem; opacity: 0.7;">
+            <p>Made with 💛 & Motivation</p>
+        </div>
+    </aside>
+
+    <!-- Main Section -->
+    <main>
+        <header>
+            <h1>Good Morning, Gauri! ☀️</h1>
+            <p>Wake up with intent, build your dreams today.</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Column: Alarms -->
+            <div class="card">
+                <h3>Active Alarms & Schedules</h3>
+                <div id="alarm-list-container">
+                    <div class="alarm-item">
+                        <div>
+                            <div class="alarm-time">06:30 AM</div>
+                            <div class="alarm-label">Morning Wake-Up • Gym Mix</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="alarm-item">
+                        <div>
+                            <div class="alarm-time">08:15 AM</div>
+                            <div class="alarm-label">Deep Focus • Commute Playlist</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <br>
+                <button class="btn" onclick="triggerAlarmTest()">🔔 Test Alarm & Quote Popup</button>
+            </div>
+
+            <!-- Right Column: Quick Stats / Playlist Preview -->
+            <div class="card">
+                <h3>🎵 Preferred Playlist</h3>
+                <p style="font-size: 0.9rem; color: #7a7067; margin-bottom: 15px;">Currently loaded for morning rings:</p>
+                <div style="background: #faf5ed; padding: 15px; border-radius: 12px; border: 1px dashed var(--primary-blue);">
+                    <strong>Rise & Shine Acoustic</strong>
+                    <p style="font-size: 0.85rem; margin-top: 5px;">12 Tracks • Custom JDBC Linked</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Motivational Alarm Ringing Modal -->
+    <div id="alarm-modal">
+        <div class="modal-content">
+            <h2 style="color: var(--accent-red); font-size: 1.5rem;">⏰ ALARM RINGING!</h2>
+            <div class="quote-box" id="quote-display">
+                "You must break the pattern today or the loop will repeat tomorrow."
+            </div>
+            <p style="font-size: 0.9rem; color: #7a7067; margin-bottom: 25px;">- Snoopy Daily Inspiration</p>
+            <button class="btn btn-accent" onclick="dismissAlarm()" style="width: 100%;">Wake Up & Conquer the Day ✨</button>
+        </div>
+    </div>
+
+    <script>
+        // Array of 10+ motivational quotes for the alarm ring screen
+        const motivationalQuotes = [
+            "You must break the pattern today or the loop will repeat tomorrow.",
+            "Nothing changes if nothing changes.",
+            "Small daily progress adds up to huge results.",
+            "Your future is created by what you do today, not tomorrow.",
+            "Wake up determined, go to bed satisfied.",
+            "Do something today that your future self will thank you for.",
+            "The secret of getting ahead is getting started.",
+            "Doubt kills more dreams than failure ever will.",
+            "Believe you can and you're halfway there.",
+            "Today is a new day. Don't let your history interfere with your destiny!"
+        ];
+
+        function triggerAlarmTest() {
+            // Pick a random quote from the 10+ quotes list
+            const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+            document.getElementById('quote-displayinnerText') || (document.getElementById('quote-display').innerText = `"${motivationalQuotes[randomIndex]}"`);
+            
+            // Show modal
+            document.getElementById('alarm-modal').style.display = 'flex';
+        }
+
+        function dismissAlarm() {
+            document.getElementById('alarm-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

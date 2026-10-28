@@ -1,0 +1,10 @@
+package src;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Initializing Personalized Music Alarm Clock...");
+        AlarmManager alarmManager = new AlarmManager();
+        alarmManager.startAlarmChecker();
+        System.out.println("Alarm clock service is running in the background. Press Ctrl+C to exit.");
+    }
+}

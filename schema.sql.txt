@@ -1,0 +1,38 @@
+CREATE DATABASE IF NOT EXISTS music_alarm_db;
+USE music_alarm_db;
+
+-- User Profiles Table
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Preferred Playlists / Songs Table
+CREATE TABLE IF NOT EXISTS playlists (
+    playlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    song_title VARCHAR(100) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Alarms Table
+CREATE TABLE IF NOT EXISTS alarms (
+    alarm_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    alarm_time TIME NOT NULL,
+    playlist_id INT,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(playlist_id) ON DELETE SET NULL
+);
+
+-- Alarm Logs Table
+CREATE TABLE IF NOT EXISTS alarm_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    alarm_id INT,
+    triggered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50),
+    FOREIGN KEY (alarm_id) REFERENCES alarms(alarm_id) ON DELETE CASCADE
+);
